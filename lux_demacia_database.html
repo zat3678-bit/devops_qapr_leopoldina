@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lux - A Dama da Luz | Banco de Dados Demaciano</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        demacia: {
+                            gold: '#f0c665',
+                            goldLight: '#fff2b3',
+                            goldDark: '#b88b2e',
+                            blue: '#0b162c',
+                            blueDark: '#050a15',
+                            blueLight: '#182d53',
+                            accent: '#64b5f6',
+                            purple: '#8b5cf6',
+                            lightGlow: '#e2f1ff'
+                        }
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'gold-glow': '0 0 25px rgba(240, 198, 101, 0.4)',
+                        'blue-glow': '0 0 30px rgba(100, 181, 246, 0.3)',
+                        'light-beam': '0 0 50px rgba(255, 242, 179, 0.6)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Estilos personalizados League Client / Demacia */
+        body {
+            background-color: #050a15;
+            color: #e2e8f0;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(240, 198, 101, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 80% 30%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 10% 70%, rgba(100, 181, 246, 0.06) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .demacia-border {
+            border: 1px solid rgba(240, 198, 101, 0.3);
+            position: relative;
+        }
+
+        .demacia-border::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            border: 1px solid rgba(255, 242, 179, 0.15);
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fff2b3 0%, #f0c665 50%, #b88b2e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-gradient-bg {
+            background: linear-gradient(135deg, #f0c665 0%, #b88b2e 100%);
+        }
+
+        .glass-panel {
+            background: rgba(11, 22, 44, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(240, 198, 101, 0.2);
+        }
+
+        .glass-panel-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel-hover:hover {
+            border-color: rgba(240, 198, 101, 0.6);
+            box-shadow: 0 0 20px rgba(240, 198, 101, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Efeito de brilho de feixe de luz */
+        .light-ray {
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            width: 200px;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255, 242, 179, 0.08), transparent);
+            transform: rotate(35deg);
+            pointer-events: none;
+            animation: rayMove 8s infinite ease-in-out;
+        }
+
+        @keyframes rayMove {
+            0%, 100% { transform: rotate(35deg) translateX(-100px); opacity: 0.3; }
+            50% { transform: rotate(35deg) translateX(100px); opacity: 0.8; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050a15;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #182d53;
+            border: 1px solid #f0c665;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f0c665;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-demacia-gold selection:text-demacia-blueDark min-h-screen flex flex-col">
+
+    <!-- BARRA DE NAVEGAÇÃO FIXA -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-demacia-gold/30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo Demaciana -->
+                <a href="#hero" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-full border-2 border-demacia-gold p-1 flex items-center justify-center bg-demacia-blueDark group-hover:shadow-gold-glow transition-all duration-300">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-demacia-gold"></i>
+                    </div>
+                    <div>
+                        <span class="font-cinzel text-xl font-bold tracking-widest gold-gradient-text block leading-none">LUX</span>
+                        <span class="text-[10px] tracking-widest text-demacia-goldLight/70 uppercase">A Dama da Luz</span>
+                    </div>
+                </a>
+
+                <!-- Nav Links Desktop -->
+                <nav class="hidden lg:flex items-center space-x-1 font-cinzel text-xs font-semibold uppercase tracking-wider">
+                    <a href="#lore" class="px-3 py-2 rounded text-slate-300 hover:text-demacia-gold hover:bg-demacia-gold/10 transition-all">Lore</a>
+                    <a href="#habilidades" class="px-3 py-2 rounded text-slate-300 hover:text-demacia-gold hover:bg-demacia-gold/10 transition-all">Habilidades</a>
+                    <a href="#rotas" class="px-3 py-2 rounded text-slate-300 hover:text-demacia-gold hover:bg-demacia-gold/10 transition-all">Rotas</a>
+                    <a href="#runas" class="px-3 py-2 rounded text-slate-300 hover:text-demacia-gold hover:bg-demacia-gold/10 transition-all">Runas</a>
+                    <a href="#builds" class="px-3 py-2 rounded text-slate-300 hover:text-demacia-gold hover:bg-demacia-gold/10 transition-all">Builds</a>
+                    <a href="#skins" class="px-3 py-2 rounded text-slate-300 hover:text-demacia-gold hover:bg-demacia-gold/10 transition-all">Skins</a>
+                    <a href="#calculadora" class="px-3 py-2 rounded bg-demacia-gold/20 text-demacia-gold border border-demacia-gold/40 hover:bg-demacia-gold hover:text-demacia-blueDark transition-all shadow-gold-glow">Simulador de Combo</a>
+                </nav>
+
+                <!-- Botão Menu Mobile -->
+                <div class="lg:hidden">
+                    <button id="mobile-menu-btn" class="text-demacia-gold p-2 hover:bg-demacia-blueLight rounded-lg">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Mobile Expansível -->
+        <div id="mobile-menu" class="hidden lg:hidden glass-panel border-t border-demacia-gold/20 px-4 pt-2 pb-6 space-y-2 font-cinzel text-sm">
+            <a href="#lore" class="block px-3 py-2 text-slate-200 hover:bg-demacia-gold/20 rounded">Lore & História</a>
+            <a href="#habilidades" class="block px-3 py-2 text-slate-200 hover:bg-demacia-gold/20 rounded">Habilidades</a>
+            <a href="#rotas" class="block px-3 py-2 text-slate-200 hover:bg-demacia-gold/20 rounded">Rotas & Matchups</a>
+            <a href="#runas" class="block px-3 py-2 text-slate-200 hover:bg-demacia-gold/20 rounded">Runas</a>
+            <a href="#builds" class="block px-3 py-2 text-slate-200 hover:bg-demacia-gold/20 rounded">Builds & Itens</a>
+            <a href="#skins" class="block px-3 py-2 text-slate-200 hover:bg-demacia-gold/20 rounded">Galeria de Skins</a>
+            <a href="#calculadora" class="block px-3 py-2 text-demacia-gold font-bold bg-demacia-gold/10 border border-demacia-gold/30 rounded">Calculadora de Combo</a>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- 1. HERO BANNER -->
+        <section id="hero" class="relative min-h-[85vh] flex items-center justify-center overflow-hidden py-16">
+            <!-- Background Image com Overlays Demacianos -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_0.jpg" alt="Lux Splash Art" class="w-full h-full object-cover object-top opacity-35 scale-105 filter brightness-90 contrast-110 transition-transform duration-1000">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#050a15] via-[#050a15]/60 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-[#050a15] via-transparent to-[#050a15]"></div>
+                <div class="light-ray"></div>
+            </div>
+
+            <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <!-- Tag Demacia -->
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-demacia-gold/40 text-demacia-goldLight text-xs font-cinzel font-semibold tracking-widest uppercase mb-6 shadow-gold-glow">
+                    <i data-lucide="shield" class="w-4 h-4 text-demacia-gold"></i>
+                    Demacia • Mago de Artilharia / Suporte
+                </div>
+
+                <!-- Title -->
+                <h1 class="text-5xl sm:text-7xl lg:text-8xl font-cinzel font-black tracking-wider uppercase mb-4 gold-gradient-text drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">
+                    LUX
+                </h1>
+                <p class="font-cinzel text-xl sm:text-2xl text-demacia-goldLight tracking-widest uppercase mb-8 font-light max-w-2xl mx-auto">
+                    A Dama da Luz
+                </p>
+
+                <!-- Citação -->
+                <p class="italic text-slate-300 max-w-2xl mx-auto mb-10 text-base sm:text-lg font-light leading-relaxed">
+                    "A luz que brilha duas vezes mais forte queima pela metade do tempo... então é melhor brilharmos com tudo o que temos!"
+                </p>
+
+                <!-- Cards de Estatísticas Rápidas -->
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 max-w-4xl mx-auto mb-10">
+                    <div class="glass-panel p-3 rounded-lg border border-demacia-gold/30">
+                        <span class="text-xs text-slate-400 font-cinzel block uppercase">Dificuldade</span>
+                        <div class="flex justify-center gap-1 mt-1.5">
+                            <span class="w-3 h-3 rounded-full bg-demacia-gold"></span>
+                            <span class="w-3 h-3 rounded-full bg-demacia-gold"></span>
+                            <span class="w-3 h-3 rounded-full bg-slate-700"></span>
+                        </div>
+                        <span class="text-xs font-bold text-demacia-goldLight mt-1 block">Moderada</span>
+                    </div>
+
+                    <div class="glass-panel p-3 rounded-lg border border-demacia-gold/30">
+                        <span class="text-xs text-slate-400 font-cinzel block uppercase">Dano</span>
+                        <div class="flex justify-center gap-1 mt-1.5">
+                            <span class="w-3 h-3 rounded-full bg-demacia-gold"></span>
+                            <span class="w-3 h-3 rounded-full bg-demacia-gold"></span>
+                            <span class="w-3 h-3 rounded-full bg-demacia-gold"></span>
+                        </div>
+                        <span class="text-xs font-bold text-demacia-goldLight mt-1 block">Muito Alto</span>
+                    </div>
+
+                    <div class="glass-panel p-3 rounded-lg border border-demacia-gold/30">
+                        <span class="text-xs text-slate-400 font-cinzel block uppercase">Utilidade</span>
+                        <div class="flex justify-center gap-1 mt-1.5">
+                            <span class="w-3 h-3 rounded-full bg-demacia-gold"></span>
+                            <span class="w-3 h-3 rounded-full bg-demacia-gold"></span>
+                            <span class="w-3 h-3 rounded-full bg-slate-700"></span>
+                        </div>
+                        <span class="text-xs font-bold text-demacia-goldLight mt-1 block">Média / Alta</span>
+                    </div>
+
+                    <div class="glass-panel p-3 rounded-lg border border-demacia-gold/30">
+                        <span class="text-xs text-slate-400 font-cinzel block uppercase">Mobilidade</span>
+                        <div class="flex justify-center gap-1 mt-1.5">
+                            <span class="w-3 h-3 rounded-full bg-demacia-gold"></span>
+                            <span class="w-3 h-3 rounded-full bg-slate-700"></span>
+                            <span class="w-3 h-3 rounded-full bg-slate-700"></span>
+                        </div>
+                        <span class="text-xs font-bold text-demacia-goldLight mt-1 block">Baixa</span>
+                    </div>
+
+                    <div class="glass-panel p-3 rounded-lg border border-demacia-gold/30 col-span-2 sm:col-span-1">
+                        <span class="text-xs text-slate-400 font-cinzel block uppercase">Rotas</span>
+                        <span class="text-sm font-bold text-demacia-gold mt-2 block">Mid / Suporte</span>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação Directa -->
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="#calculadora" class="px-8 py-3.5 rounded-md gold-gradient-bg text-demacia-blueDark font-cinzel font-bold text-sm tracking-wider uppercase shadow-gold-glow hover:brightness-110 transition-all flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>
+                        Simulador de Combo
+                    </a>
+                    <a href="#habilidades" class="px-8 py-3.5 rounded-md glass-panel border border-demacia-gold/50 text-demacia-goldLight font-cinzel font-bold text-sm tracking-wider uppercase hover:bg-demacia-gold/10 transition-all flex items-center gap-2">
+                        <i data-lucide="zap" class="w-4 h-4"></i>
+                        Ver Habilidades
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. LORE & HISTÓRIA -->
+        <section id="lore" class="py-20 relative border-t border-demacia-gold/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="font-cinzel text-3xl sm:text-4xl font-bold gold-gradient-text uppercase tracking-widest">A História de Luxana Stemmaguarda</h2>
+                    <div class="w-24 h-1 gold-gradient-bg mx-auto mt-3 rounded-full"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <!-- Lore Box Main -->
+                    <div class="lg:col-span-7 glass-panel p-6 sm:p-8 rounded-xl border border-demacia-gold/30 relative overflow-hidden">
+                        <h3 class="font-cinzel text-2xl font-bold text-demacia-goldLight mb-4 flex items-center gap-2">
+                            <i data-lucide="book-open" class="w-6 h-6 text-demacia-gold"></i>
+                            A Magia Oculta em Demacia
+                        </h3>
+                        <p class="text-slate-300 leading-relaxed mb-4 text-justify">
+                            <strong>Luxana Stemmaguarda</strong> nasceu no prestigiado reino de Demacia, onde a magia é vista com profundo medo, desconfiança e proibição estrita. Vinda do nobre clã Stemmaguarda (Crownguard) — destinado a proteger a linhagem real e o rei Jarvan IV — Lux parecia fadada a uma vida de dever, etiqueta e servidão patriótica.
+                        </p>
+                        <p class="text-slate-300 leading-relaxed mb-4 text-justify">
+                            No entanto, desde a infância, Lux carregava um segredo perigoso: ela nasceu com o dom extraordinário de manipular a luz solar e a energia luminescente. Em um reino que caçava magos através dos temidos Caçadores de Magos, Lux viveu em constante angústia, ocultando seu brilho interior para proteger sua família e seu irmão mais velho, <strong>Garen</strong>.
+                        </p>
+
+                        <!-- Texto Expansível -->
+                        <div id="full-lore" class="hidden space-y-4 pt-2 border-t border-demacia-gold/20 text-slate-300 leading-relaxed text-justify">
+                            <p>
+                                À medida que crescia, Lux tentou conter seus poderes, mas sua magia se manifestava em momentos de intensa emoção. Em sua busca desesperada por respostas e controle, ela frequentou os arquivos de Demacia e acabou conhecendo <strong>Sylas de Dregbourne</strong>, um mago prisioneiro. Sylas a ensinou a canalizar sua magia, mas manipulou sua ingenuidade para absorver o poder de Lux, libertar-se de suas correntes de petricita e liderar uma violenta revolução dos magos em Demacia.
+                            </p>
+                            <p>
+                                Arrasada pela traição, mas com o espírito inabalável, Lux abraçou finalmente sua verdadeira identidade. Ela deixou de ver seu dom como uma maldição e passou a usá-lo como um farol de esperança. Hoje, Lux luta por uma Demacia mais justa, onde magos e não-magos possam coexistir em harmonia e segurança.
+                            </p>
+                        </div>
+
+                        <button id="toggle-lore-btn" class="mt-4 font-cinzel text-xs font-bold text-demacia-gold hover:text-white uppercase tracking-widest flex items-center gap-2 py-2">
+                            <span>Ler História Completa</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-300" id="lore-arrow"></i>
+                        </button>
+                    </div>
+
+                    <!-- Relacionamentos da Campeã -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <h3 class="font-cinzel text-xl font-bold text-demacia-goldLight mb-4 flex items-center gap-2">
+                            <i data-lucide="users" class="w-5 h-5 text-demacia-gold"></i>
+                            Relações & Aliados
+                        </h3>
+
+                        <!-- Garen -->
+                        <div class="glass-panel p-4 rounded-lg border border-demacia-gold/20 flex items-center gap-4 glass-panel-hover">
+                            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-demacia-gold flex-shrink-0">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Garen.png" alt="Garen" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="font-cinzel font-bold text-demacia-goldLight">Garen Stemmaguarda</h4>
+                                <span class="text-xs text-demacia-gold/80 block mb-1">Irmão Mais Velho / Protetor</span>
+                                <p class="text-xs text-slate-300">Apesar da rígida postura de Garen contra a magia, seu amor por sua irmã supera o dogma. Lux busca proteger o irmão assim como ele a protege.</p>
+                            </div>
+                        </div>
+
+                        <!-- Sylas -->
+                        <div class="glass-panel p-4 rounded-lg border border-demacia-gold/20 flex items-center gap-4 glass-panel-hover">
+                            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-red-500 flex-shrink-0">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Sylas.png" alt="Sylas" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="font-cinzel font-bold text-red-400">Sylas de Dregbourne</h4>
+                                <span class="text-xs text-red-400/80 block mb-1">Inimigo / Ex-Mentor Trágico</span>
+                                <p class="text-xs text-slate-300">Sylas usou a ingenuidade de Lux para escapar da prisão. Agora, representa a rebelião violenta que Lux busca evitar através da paz.</p>
+                            </div>
+                        </div>
+
+                        <!-- Ezreal -->
+                        <div class="glass-panel p-4 rounded-lg border border-demacia-gold/20 flex items-center gap-4 glass-panel-hover">
+                            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-demacia-accent flex-shrink-0">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Ezreal.png" alt="Ezreal" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="font-cinzel font-bold text-demacia-accent">Ezreal</h4>
+                                <span class="text-xs text-demacia-accent/80 block mb-1">Aliado / Interesse Romântico Reputado</span>
+                                <p class="text-xs text-slate-300">O explorador intrépido é abertamente fascinado por Lux, embora Lux muitas vezes ignore ou zombe com carinho de suas investidas em combate.</p>
+                            </div>
+                        </div>
+
+                        <!-- Jarvan IV -->
+                        <div class="glass-panel p-4 rounded-lg border border-demacia-gold/20 flex items-center gap-4 glass-panel-hover">
+                            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-demacia-gold flex-shrink-0">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/JarvanIV.png" alt="Jarvan IV" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h4 class="font-cinzel font-bold text-demacia-goldLight">Jarvan IV</h4>
+                                <span class="text-xs text-demacia-gold/80 block mb-1">Rei de Demacia</span>
+                                <p class="text-xs text-slate-300">Lux mantém lealdade ao trono demaciano, enquanto torce para que o jovem rei revogue as leis cruéis contra os magos do reino.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. HABILIDADES -->
+        <section id="habilidades" class="py-20 relative bg-demacia-blueDark/80 border-t border-demacia-gold/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="font-cinzel text-3xl sm:text-4xl font-bold gold-gradient-text uppercase tracking-widest">Arsenal Magico de Lux</h2>
+                    <p class="text-slate-400 text-sm mt-2">Clique nas habilidades abaixo para conferir detalhes, custos, recarga e estratégias de uso</p>
+                    <div class="w-24 h-1 gold-gradient-bg mx-auto mt-3 rounded-full"></div>
+                </div>
+
+                <!-- Botões das Habilidades -->
+                <div class="flex flex-wrap justify-center gap-3 sm:gap-6 mb-10" id="ability-tabs">
+                    <!-- Passiva -->
+                    <button data-skill="P" class="skill-tab active px-4 py-3 rounded-xl glass-panel border border-demacia-gold text-demacia-gold font-cinzel font-bold text-sm uppercase flex items-center gap-3 transition-all hover:shadow-gold-glow">
+                        <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/passive/LuxIlluminate.png" alt="Passiva" class="w-10 h-10 rounded border border-demacia-gold">
+                        <div class="text-left">
+                            <span class="block text-[10px] text-slate-400">Passiva</span>
+                            <span>Iluminação</span>
+                        </div>
+                    </button>
+
+                    <!-- Q -->
+                    <button data-skill="Q" class="skill-tab px-4 py-3 rounded-xl glass-panel border border-demacia-gold/30 text-slate-300 font-cinzel font-bold text-sm uppercase flex items-center gap-3 transition-all hover:shadow-gold-glow">
+                        <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/LuxLightBinding.png" alt="Q" class="w-10 h-10 rounded border border-demacia-gold/50">
+                        <div class="text-left">
+                            <span class="block text-[10px] text-slate-400">Q</span>
+                            <span>Ligação Luz</span>
+                        </div>
+                    </button>
+
+                    <!-- W -->
+                    <button data-skill="W" class="skill-tab px-4 py-3 rounded-xl glass-panel border border-demacia-gold/30 text-slate-300 font-cinzel font-bold text-sm uppercase flex items-center gap-3 transition-all hover:shadow-gold-glow">
+                        <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/LuxPrismaticWave.png" alt="W" class="w-10 h-10 rounded border border-demacia-gold/50">
+                        <div class="text-left">
+                            <span class="block text-[10px] text-slate-400">W</span>
+                            <span>Barreira Prismática</span>
+                        </div>
+                    </button>
+
+                    <!-- E -->
+                    <button data-skill="E" class="skill-tab px-4 py-3 rounded-xl glass-panel border border-demacia-gold/30 text-slate-300 font-cinzel font-bold text-sm uppercase flex items-center gap-3 transition-all hover:shadow-gold-glow">
+                        <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/LuxLightStrikeKugel.png" alt="E" class="w-10 h-10 rounded border border-demacia-gold/50">
+                        <div class="text-left">
+                            <span class="block text-[10px] text-slate-400">E</span>
+                            <span>Singularidade Lucente</span>
+                        </div>
+                    </button>
+
+                    <!-- R -->
+                    <button data-skill="R" class="skill-tab px-4 py-3 rounded-xl glass-panel border border-demacia-gold/30 text-slate-300 font-cinzel font-bold text-sm uppercase flex items-center gap-3 transition-all hover:shadow-gold-glow">
+                        <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/LuxR.png" alt="R" class="w-10 h-10 rounded border border-demacia-gold/50">
+                        <div class="text-left">
+                            <span class="block text-[10px] text-slate-400">R (Ultimate)</span>
+                            <span>Centelha Final</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Painel de Exibição da Habilidade Ativa -->
+                <div id="ability-display" class="glass-panel p-6 sm:p-10 rounded-2xl border border-demacia-gold/40 shadow-blue-glow">
+                    <!-- O conteúdo é preenchido via JS dinamicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. ROTAS E ESTILO DE JOGO -->
+        <section id="rotas" class="py-20 relative border-t border-demacia-gold/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="font-cinzel text-3xl sm:text-4xl font-bold gold-gradient-text uppercase tracking-widest">Rotas e Estilo de Jogo</h2>
+                    <p class="text-slate-400 text-sm mt-2">Aprenda a dominar a Mid Lane e a Suporte com estratégias otimizadas</p>
+                    <div class="w-24 h-1 gold-gradient-bg mx-auto mt-3 rounded-full"></div>
+                </div>
+
+                <!-- Toggle Rota Mid / Sup -->
+                <div class="flex justify-center mb-10">
+                    <div class="glass-panel p-1.5 rounded-full border border-demacia-gold/40 inline-flex">
+                        <button id="btn-lane-mid" class="px-6 py-2 rounded-full font-cinzel font-bold text-sm uppercase transition-all bg-demacia-gold text-demacia-blueDark shadow-gold-glow">
+                            Mid Lane (Mago de Control/Burst)
+                        </button>
+                        <button id="btn-lane-sup" class="px-6 py-2 rounded-full font-cinzel font-bold text-sm uppercase transition-all text-slate-300 hover:text-demacia-gold">
+                            Suporte (Poke & Proteção)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Conteúdo da Rota Selecionada -->
+                <div id="lane-content" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Preenchido via Javascript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. MELHORES RUNAS -->
+        <section id="runas" class="py-20 relative bg-demacia-blueDark/80 border-t border-demacia-gold/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="font-cinzel text-3xl sm:text-4xl font-bold gold-gradient-text uppercase tracking-widest">Página de Runas Recomendadas</h2>
+                    <p class="text-slate-400 text-sm mt-2">Escolha a combinação perfeita para cada partida e estilo de jogo</p>
+                    <div class="w-24 h-1 gold-gradient-bg mx-auto mt-3 rounded-full"></div>
+                </div>
+
+                <!-- Seletor de Presets de Runas -->
+                <div class="flex flex-wrap justify-center gap-3 mb-10">
+                    <button data-rune-preset="mid-burst" class="rune-preset-btn active px-5 py-2.5 rounded-lg glass-panel border border-demacia-gold text-demacia-gold font-cinzel font-bold text-xs uppercase transition-all">
+                        Mid Lane: Burst Inevitável (Cometa)
+                    </button>
+                    <button data-rune-preset="mid-firststrike" class="rune-preset-btn px-5 py-2.5 rounded-lg glass-panel border border-demacia-gold/30 text-slate-400 font-cinzel font-bold text-xs uppercase transition-all">
+                        Mid Lane: Scaling & Ouro (Primeiro Impacto)
+                    </button>
+                    <button data-rune-preset="sup-aery" class="rune-preset-btn px-5 py-2.5 rounded-lg glass-panel border border-demacia-gold/30 text-slate-400 font-cinzel font-bold text-xs uppercase transition-all">
+                        Suporte: Poke & Escudo (Aery)
+                    </button>
+                </div>
+
+                <!-- Display do Árvore de Runas -->
+                <div id="rune-tree-display" class="glass-panel p-6 sm:p-10 rounded-2xl border border-demacia-gold/40">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. BUILDS E ITENS -->
+        <section id="builds" class="py-20 relative border-t border-demacia-gold/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="font-cinzel text-3xl sm:text-4xl font-bold gold-gradient-text uppercase tracking-widest">Builds & Feitiços de Invocador</h2>
+                    <p class="text-slate-400 text-sm mt-2">Itens míticos, lendários e feitiços para maximizar seu dano e sobrevivência</p>
+                    <div class="w-24 h-1 gold-gradient-bg mx-auto mt-3 rounded-full"></div>
+                </div>
+
+                <!-- Feitiços de Invocador -->
+                <div class="mb-12">
+                    <h3 class="font-cinzel text-xl font-bold text-demacia-goldLight mb-6 flex items-center gap-2">
+                        <i data-lucide="zap" class="w-5 h-5 text-demacia-gold"></i>
+                        Feitiços de Invocador Recomendados
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="glass-panel p-4 rounded-xl border border-demacia-gold/20 flex items-center gap-4">
+                            <div class="flex gap-2 flex-shrink-0">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/SummonerFlash.png" title="Flash" class="w-12 h-12 rounded border border-demacia-gold">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/SummonerDot.png" title="Incendiar" class="w-12 h-12 rounded border border-demacia-gold">
+                            </div>
+                            <div>
+                                <h4 class="font-cinzel font-bold text-demacia-goldLight text-sm">Flash + Incendiar</h4>
+                                <span class="text-xs text-demacia-gold/70 font-semibold block">Mid Burst / Solo Kill</span>
+                                <p class="text-xs text-slate-300 mt-1">Ideal para pressão de rota inicial e garantir abates com o combo completo.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-4 rounded-xl border border-demacia-gold/20 flex items-center gap-4">
+                            <div class="flex gap-2 flex-shrink-0">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/SummonerFlash.png" title="Flash" class="w-12 h-12 rounded border border-demacia-gold">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/SummonerTeleport.png" title="Teleporte" class="w-12 h-12 rounded border border-demacia-gold">
+                            </div>
+                            <div>
+                                <h4 class="font-cinzel font-bold text-demacia-goldLight text-sm">Flash + Teleporte</h4>
+                                <span class="text-xs text-demacia-gold/70 font-semibold block">Mid Scaling / Macro</span>
+                                <p class="text-xs text-slate-300 mt-1">Ótimo para rotas difíceis, manter farm alto e presença de mapa no mid/late game.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-4 rounded-xl border border-demacia-gold/20 flex items-center gap-4">
+                            <div class="flex gap-2 flex-shrink-0">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/SummonerFlash.png" title="Flash" class="w-12 h-12 rounded border border-demacia-gold">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/SummonerExhaust.png" title="Exaustão" class="w-12 h-12 rounded border border-demacia-gold">
+                            </div>
+                            <div>
+                                <h4 class="font-cinzel font-bold text-demacia-goldLight text-sm">Flash + Exaustão / Barreira</h4>
+                                <span class="text-xs text-demacia-gold/70 font-semibold block">Vs Assassinos / Suporte</span>
+                                <p class="text-xs text-slate-300 mt-1">Essencial contra Zed, Fizz, Yasuo e composições de alto burst contra você.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Itens -->
+                <div class="space-y-8">
+                    <!-- Mid Core Build -->
+                    <div class="glass-panel p-6 rounded-2xl border border-demacia-gold/30">
+                        <h3 class="font-cinzel text-lg font-bold text-demacia-gold mb-4 flex items-center gap-2">
+                            <i data-lucide="crosshair" class="w-5 h-5"></i>
+                            Build Core - Mid Lane Burst
+                        </h3>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-center">
+                            <div class="p-3 bg-demacia-blueDark/60 rounded-xl border border-demacia-gold/20 flex flex-col items-center">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/6655.png" alt="Companheiro de Luden" class="w-14 h-14 rounded border border-demacia-gold mb-2">
+                                <span class="font-cinzel text-xs font-bold text-demacia-goldLight">Companheiro de Luden</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Mana, AP, CD & Burst Cargas</span>
+                            </div>
+
+                            <div class="p-3 bg-demacia-blueDark/60 rounded-xl border border-demacia-gold/20 flex flex-col items-center">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3020.png" alt="Sapatos do Feiticeiro" class="w-14 h-14 rounded border border-demacia-gold mb-2">
+                                <span class="font-cinzel text-xs font-bold text-demacia-goldLight">Sapatos do Feiticeiro</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Penetração Mágica + Vel. Mov.</span>
+                            </div>
+
+                            <div class="p-3 bg-demacia-blueDark/60 rounded-xl border border-demacia-gold/20 flex flex-col items-center">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/4645.png" alt="Chama Sombria" class="w-14 h-14 rounded border border-demacia-gold mb-2">
+                                <span class="font-cinzel text-xs font-bold text-demacia-goldLight">Chama Sombria</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Pen. Mágica e Crítico Mágico em vida baixa</span>
+                            </div>
+
+                            <div class="p-3 bg-demacia-blueDark/60 rounded-xl border border-demacia-gold/20 flex flex-col items-center">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3089.png" alt="Rabadon" class="w-14 h-14 rounded border border-demacia-gold mb-2">
+                                <span class="font-cinzel text-xs font-bold text-demacia-goldLight">Capuz de Rabadon</span>
+                                <span class="text-[10px] text-slate-400 mt-1">+35% de Poder de Habilidade Total</span>
+                            </div>
+
+                            <div class="p-3 bg-demacia-blueDark/60 rounded-xl border border-demacia-gold/20 flex flex-col items-center">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3157.png" alt="Zhonya" class="w-14 h-14 rounded border border-demacia-gold mb-2">
+                                <span class="font-cinzel text-xs font-bold text-demacia-goldLight">Ampulheta de Zhonya</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Proteção Ativa (Estase) + Armadura</span>
+                            </div>
+
+                            <div class="p-3 bg-demacia-blueDark/60 rounded-xl border border-demacia-gold/20 flex flex-col items-center">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3135.png" alt="Cajado do Vazio" class="w-14 h-14 rounded border border-demacia-gold mb-2">
+                                <span class="font-cinzel text-xs font-bold text-demacia-goldLight">Cajado do Vazio</span>
+                                <span class="text-[10px] text-slate-400 mt-1">40% de Penetração Mágica</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Situacionais -->
+                    <div class="glass-panel p-6 rounded-2xl border border-demacia-gold/20">
+                        <h3 class="font-cinzel text-lg font-bold text-demacia-gold mb-4 flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                            Itens Situacionais Importantes
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-3 bg-demacia-blueDark/40 rounded-xl border border-demacia-gold/10 flex items-center gap-3">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3102.png" alt="Banshee" class="w-12 h-12 rounded border border-demacia-gold flex-shrink-0">
+                                <div>
+                                    <h4 class="font-cinzel font-bold text-sm text-demacia-goldLight">Véu da Banshee</h4>
+                                    <p class="text-xs text-slate-300">Compre contra campeões de engajamento único (Blitzcrank, Malphite, Vex).</p>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-demacia-blueDark/40 rounded-xl border border-demacia-gold/10 flex items-center gap-3">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/3165.png" alt="Morellonomicon" class="w-12 h-12 rounded border border-demacia-gold flex-shrink-0">
+                                <div>
+                                    <h4 class="font-cinzel font-bold text-sm text-demacia-goldLight">Morellonomicon</h4>
+                                    <p class="text-xs text-slate-300">Essencial contra composições com muita cura (Sylas, Aatrox, Soraka, Yuumi).</p>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-demacia-blueDark/40 rounded-xl border border-demacia-gold/10 flex items-center gap-3">
+                                <img src="https://ddragon.leagueoflegends.com/cdn/14.1.1/img/item/4629.png" alt="Horizon Focus" class="w-12 h-12 rounded border border-demacia-gold flex-shrink-0">
+                                <div>
+                                    <h4 class="font-cinzel font-bold text-sm text-demacia-goldLight">Foco do Horizonte</h4>
+                                    <p class="text-xs text-slate-300">Aumenta o dano de longo alcance e revela inimigos atingidos por habilidades.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. GALERIA DE SKINS -->
+        <section id="skins" class="py-20 relative bg-demacia-blueDark/80 border-t border-demacia-gold/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-8">
+                    <h2 class="font-cinzel text-3xl sm:text-4xl font-bold gold-gradient-text uppercase tracking-widest">Galeria Completa de Skins</h2>
+                    <p class="text-slate-400 text-sm mt-2">Explore os visuais icônicos da Dama da Luz no League of Legends</p>
+                    <div class="w-24 h-1 gold-gradient-bg mx-auto mt-3 rounded-full"></div>
+                </div>
+
+                <!-- Controles de Busca e Filtros -->
+                <div class="flex flex-col md:flex-row gap-4 justify-between items-center mb-10 max-w-4xl mx-auto">
+                    <!-- Campo de Busca -->
+                    <div class="relative w-full md:w-80">
+                        <i data-lucide="search" class="w-4 h-4 text-demacia-gold absolute left-3 top-3.5"></i>
+                        <input type="text" id="skin-search" placeholder="Buscar skin (ex: Elementalista, Guardiã)..." class="w-full bg-demacia-blueDark border border-demacia-gold/30 rounded-lg pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-demacia-gold">
+                    </div>
+
+                    <!-- Filtro por Raridade -->
+                    <div class="flex flex-wrap gap-2 justify-center w-full md:w-auto">
+                        <button data-rarity="all" class="skin-filter-btn active px-3 py-1.5 rounded-md glass-panel border border-demacia-gold text-demacia-gold text-xs font-cinzel font-bold">Todas</button>
+                        <button data-rarity="Ultimate" class="skin-filter-btn px-3 py-1.5 rounded-md glass-panel border border-demacia-gold/30 text-slate-400 text-xs font-cinzel font-bold">Ultimate</button>
+                        <button data-rarity="Lendária" class="skin-filter-btn px-3 py-1.5 rounded-md glass-panel border border-demacia-gold/30 text-slate-400 text-xs font-cinzel font-bold">Lendária</button>
+                        <button data-rarity="Épica" class="skin-filter-btn px-3 py-1.5 rounded-md glass-panel border border-demacia-gold/30 text-slate-400 text-xs font-cinzel font-bold">Épica</button>
+                        <button data-rarity="Prestígio" class="skin-filter-btn px-3 py-1.5 rounded-md glass-panel border border-demacia-gold/30 text-slate-400 text-xs font-cinzel font-bold">Prestígio</button>
+                    </div>
+                </div>
+
+                <!-- Grid de Skins -->
+                <div id="skins-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Preenchido via Javascript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. CALCULADORA E SIMULADOR DE COMBO -->
+        <section id="calculadora" class="py-20 relative border-t border-demacia-gold/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="font-cinzel text-3xl sm:text-4xl font-bold gold-gradient-text uppercase tracking-widest">Simulador & Calculadora de Combo</h2>
+                    <p class="text-slate-400 text-sm mt-2">Ajuste seu nível, AP e resistência do alvo para calcular o dano exato em tempo real</p>
+                    <div class="w-24 h-1 gold-gradient-bg mx-auto mt-3 rounded-full"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <!-- Controles da Calculadora -->
+                    <div class="lg:col-span-6 glass-panel p-6 sm:p-8 rounded-2xl border border-demacia-gold/40 space-y-6">
+                        <h3 class="font-cinzel text-xl font-bold text-demacia-goldLight flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-5 h-5 text-demacia-gold"></i>
+                            Parâmetros da Lux e do Alvo
+                        </h3>
+
+                        <!-- Nível de Lux -->
+                        <div>
+                            <div class="flex justify-between text-sm font-cinzel mb-2">
+                                <span class="text-slate-300">Nível do Campeão (Lux):</span>
+                                <span id="calc-level-val" class="text-demacia-gold font-bold">Nível 11</span>
+                            </div>
+                            <input type="range" id="calc-level" min="1" max="18" value="11" class="w-full accent-demacia-gold bg-demacia-blueDark rounded-lg h-2 cursor-pointer">
+                        </div>
+
+                        <!-- Poder de Habilidade (AP) -->
+                        <div>
+                            <div class="flex justify-between text-sm font-cinzel mb-2">
+                                <span class="text-slate-300">Poder de Habilidade Total (AP):</span>
+                                <span id="calc-ap-val" class="text-demacia-gold font-bold">350 AP</span>
+                            </div>
+                            <input type="range" id="calc-ap" min="0" max="1000" step="10" value="350" class="w-full accent-demacia-gold bg-demacia-blueDark rounded-lg h-2 cursor-pointer">
+                        </div>
+
+                        <!-- MR do Alvo -->
+                        <div>
+                            <div class="flex justify-between text-sm font-cinzel mb-2">
+                                <span class="text-slate-300">Resistência Mágica do Alvo (MR):</span>
+                                <span id="calc-mr-val" class="text-demacia-gold font-bold">50 MR</span>
+                            </div>
+                            <input type="range" id="calc-mr" min="0" max="250" step="5" value="50" class="w-full accent-demacia-gold bg-demacia-blueDark rounded-lg h-2 cursor-pointer">
+                        </div>
+
+                        <!-- Penetração Mágica -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-cinzel text-slate-300 block mb-1">Penetração Mágica Plana:</label>
+                                <input type="number" id="calc-flat-pen" value="18" min="0" max="100" class="w-full bg-demacia-blueDark border border-demacia-gold/30 rounded p-2 text-sm text-demacia-gold font-bold">
+                            </div>
+                            <div>
+                                <label class="text-xs font-cinzel text-slate-300 block mb-1">Penetração Mágica %:</label>
+                                <input type="number" id="calc-percent-pen" value="0" min="0" max="50" class="w-full bg-demacia-blueDark border border-demacia-gold/30 rounded p-2 text-sm text-demacia-gold font-bold">
+                            </div>
+                        </div>
+
+                        <!-- Seleção das Habilidades Utilizadas no Combo -->
+                        <div class="pt-4 border-t border-demacia-gold/20">
+                            <span class="text-sm font-cinzel text-demacia-goldLight block mb-3 font-bold">Habilidades Utilizadas no Combo:</span>
+                            
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 p-2.5 rounded-lg bg-demacia-blueDark/60 border border-demacia-gold/20 cursor-pointer hover:border-demacia-gold/50">
+                                    <input type="checkbox" id="chk-q" checked class="w-4 h-4 accent-demacia-gold">
+                                    <span class="text-xs font-bold text-slate-200">Q - Ligação Luz</span>
+                                </label>
+
+                                <label class="flex items-center gap-3 p-2.5 rounded-lg bg-demacia-blueDark/60 border border-demacia-gold/20 cursor-pointer hover:border-demacia-gold/50">
+                                    <input type="checkbox" id="chk-e" checked class="w-4 h-4 accent-demacia-gold">
+                                    <span class="text-xs font-bold text-slate-200">E - Singularidade Lucente</span>
+                                </label>
+
+                                <label class="flex items-center gap-3 p-2.5 rounded-lg bg-demacia-blueDark/60 border border-demacia-gold/20 cursor-pointer hover:border-demacia-gold/50">
+                                    <input type="checkbox" id="chk-r" checked class="w-4 h-4 accent-demacia-gold">
+                                    <span class="text-xs font-bold text-slate-200">R - Centelha Final (Consome/Renova Passiva)</span>
+                                </label>
+
+                                <label class="flex items-center gap-3 p-2.5 rounded-lg bg-demacia-blueDark/60 border border-demacia-gold/20 cursor-pointer hover:border-demacia-gold/50">
+                                    <input type="checkbox" id="chk-passive" checked class="w-4 h-4 accent-demacia-gold">
+                                    <span class="text-xs font-bold text-slate-200">Passiva - Iluminação (Explosões Extras por AA/R)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultado da Calculadora -->
+                    <div class="lg:col-span-6 glass-panel p-6 sm:p-8 rounded-2xl border border-demacia-gold/40 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-cinzel text-xl font-bold text-demacia-goldLight mb-6 flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-5 h-5 text-demacia-gold"></i>
+                                Relatório de Dano do Combo
+                            </h3>
+
+                            <!-- Card Dano Total -->
+                            <div class="p-6 bg-gradient-to-r from-demacia-blueDark to-demacia-blueLight rounded-xl border-2 border-demacia-gold mb-6 shadow-gold-glow text-center">
+                                <span class="text-xs font-cinzel text-slate-300 uppercase tracking-widest block mb-1">Dano Real Aplicado (Após Redução de MR)</span>
+                                <span id="total-effective-damage" class="text-5xl font-cinzel font-black gold-gradient-text block">0</span>
+                                <span class="text-xs text-slate-400 mt-2 block">Dano Bruto Total (Antes da MR): <strong id="total-raw-damage" class="text-slate-200">0</strong></span>
+                            </div>
+
+                            <!-- Detalhamento por Habilidade -->
+                            <div class="space-y-3 font-cinzel text-xs">
+                                <div class="flex justify-between p-2.5 bg-demacia-blueDark/80 rounded border border-demacia-gold/20">
+                                    <span class="text-slate-300">Q (Ligação Luz):</span>
+                                    <span id="q-damage-val" class="font-bold text-demacia-gold">0</span>
+                                </div>
+                                <div class="flex justify-between p-2.5 bg-demacia-blueDark/80 rounded border border-demacia-gold/20">
+                                    <span class="text-slate-300">E (Singularidade Lucente):</span>
+                                    <span id="e-damage-val" class="font-bold text-demacia-gold">0</span>
+                                </div>
+                                <div class="flex justify-between p-2.5 bg-demacia-blueDark/80 rounded border border-demacia-gold/20">
+                                    <span class="text-slate-300">R (Centelha Final):</span>
+                                    <span id="r-damage-val" class="font-bold text-demacia-gold">0</span>
+                                </div>
+                                <div class="flex justify-between p-2.5 bg-demacia-blueDark/80 rounded border border-demacia-gold/20">
+                                    <span class="text-slate-300">Passiva (Iluminação Proc):</span>
+                                    <span id="passive-damage-val" class="font-bold text-demacia-gold">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status da Vítima (Exemplo) -->
+                        <div class="mt-8 p-4 rounded-xl glass-panel border border-demacia-gold/30 text-center">
+                            <span class="text-xs font-cinzel text-slate-400 uppercase block mb-1">Estimativa de Impacto em Alvo Frágil (~1500 HP)</span>
+                            <div id="combo-verdict" class="font-cinzel text-lg font-bold text-demacia-goldLight">
+                                --
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL DE VISUALIZAÇÃO DE SKIN -->
+    <div id="skin-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="glass-panel border-2 border-demacia-gold rounded-2xl max-w-4xl w-full overflow-hidden shadow-light-beam relative max-h-[90vh] flex flex-col md:flex-row">
+            <!-- Botão Fechar -->
+            <button id="close-modal-btn" class="absolute top-4 right-4 z-20 text-slate-300 hover:text-demacia-gold bg-demacia-blueDark/80 p-2 rounded-full border border-demacia-gold/40">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <!-- Splash Imagem Modal -->
+            <div class="md:w-3/5 relative h-64 md:h-auto min-h-[300px]">
+                <img id="modal-skin-img" src="" alt="Skin" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-demacia-blueDark via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-demacia-blueDark"></div>
+            </div>
+
+            <!-- Informações da Skin -->
+            <div class="md:w-2/5 p-6 sm:p-8 flex flex-col justify-between">
+                <div>
+                    <span id="modal-skin-rarity" class="px-3 py-1 rounded-full text-[10px] font-cinzel font-bold tracking-widest uppercase bg-demacia-gold/20 text-demacia-gold border border-demacia-gold/40 inline-block mb-3">
+                        --
+                    </span>
+                    <h3 id="modal-skin-title" class="font-cinzel text-2xl font-bold gold-gradient-text uppercase mb-2">--</h3>
+                    
+                    <div class="space-y-2 text-xs font-cinzel text-slate-300 my-4">
+                        <div class="flex justify-between border-b border-demacia-gold/10 pb-1">
+                            <span>Preço em RP:</span>
+                            <strong id="modal-skin-rp" class="text-demacia-gold">--</strong>
+                        </div>
+                        <div class="flex justify-between border-b border-demacia-gold/10 pb-1">
+                            <span>Ano de Lançamento:</span>
+                            <strong id="modal-skin-year" class="text-demacia-gold">--</strong>
+                        </div>
+                    </div>
+
+                    <p id="modal-skin-desc" class="text-xs text-slate-300 leading-relaxed italic border-l-2 border-demacia-gold pl-3 py-1">
+                        --
+                    </p>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-demacia-gold/20">
+                    <button id="close-modal-bottom-btn" class="w-full py-2.5 rounded-lg gold-gradient-bg text-demacia-blueDark font-cinzel font-bold text-xs uppercase shadow-gold-glow">
+                        Fechar Visualizador
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="glass-panel border-t border-demacia-gold/30 py-10 mt-20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex justify-center items-center gap-2 mb-4">
+                <i data-lucide="sparkles" class="w-5 h-5 text-demacia-gold"></i>
+                <span class="font-cinzel text-lg font-bold gold-gradient-text">DEMACIA • LUMINOSITY</span>
+            </div>
+            <p class="text-xs text-slate-400 max-w-xl mx-auto leading-relaxed">
+                Este é um banco de dados e guia interativo desenvolvido para fãs de League of Legends. Todos os nomes de campeões, habilidades e artes de splash pertencem à Riot Games Inc.
+            </p>
+            <p class="text-[10px] text-slate-500 mt-4">
+                "Pela Luz de Demacia!"
+            </p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LÓGICA COMPLETA -->
+    <script>
+        // --- DADOS DAS HABILIDADES DE LUX ---
+        const abilitiesData = {
+            'P': {
+                name: 'Iluminação',
+                key: 'Passiva',
+                cooldown: 'N/A',
+                cost: 'Sem Custo',
+                icon: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/passive/LuxIlluminate.png',
+                desc: 'As habilidades de dano de Lux marcam os alvos afetados por energia de luz por 6 segundos. O próximo ataque básico ou Ultimate de Lux consome a marca, causando dano mágico adicional.',
+                details: 'Dano Adicional: 20 - 190 (com base no nível) + 25% de Poder de Habilidade (AP).',
+                tip: 'Sempre tente desferir um Ataque Básico logo após acertar o Q ou E na fase de rotas para trocar dano favoravelmente!'
+            },
+            'Q': {
+                name: 'Ligação Luz',
+                key: 'Q',
+                cooldown: '11s / 10.5s / 10s / 9.5s / 9s',
+                cost: '50 de Mana',
+                icon: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/LuxLightBinding.png',
+                desc: 'Lux dispara uma esfera de luz que enraíza até dois inimigos por 2 segundos e causa dano mágico ao primeiro e ao segundo alvo atingido.',
+                details: 'Dano Mágico: 80 / 125 / 170 / 215 / 260 (+75% AP). Alcance: 1240 unidades.',
+                tip: 'O Q atravessa um alvo secundário sem perder duração do enraizamento. Use tropas baixas para surpreender o campeão inimigo atrás delas.'
+            },
+            'W': {
+                name: 'Barreira Prismática',
+                key: 'W',
+                cooldown: '14s / 13s / 12s / 11s / 10s',
+                cost: '60 de Mana',
+                icon: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/LuxPrismaticWave.png',
+                desc: 'Lux lança seu bastão na direção de um local e o recupera, concedendo um escudo a si mesma e a todos os campeões aliados atingidos na ida e na volta.',
+                details: 'Escudo Base: 40 / 55 / 70 / 85 / 100 (+35% AP) por ida/volta (Acumula até 2x no retorno).',
+                tip: 'Lance o W em uma trajetória onde seu aliado continuará se movendo para garantir o escudo duplo no retorno do bastão.'
+            },
+            'E': {
+                name: 'Singularidade Lucente',
+                key: 'E',
+                cooldown: '10s / 9.5s / 9s / 8.5s / 8s',
+                cost: '70 / 80 / 90 / 100 / 110 de Mana',
+                icon: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/LuxLightStrikeKugel.png',
+                desc: 'Cria uma zona de luz contorcida que desacelera os inimigos próximos. Lux pode reativar a habilidade para explodir a área, causando dano mágico e concedendo visão da zona.',
+                details: 'Dano Mágico: 70 / 120 / 170 / 220 / 270 (+80% AP). Lentidão: 25% / 30% / 35% / 40% / 45%.',
+                tip: 'Use o E nas moitas (bushes) para checar visão com segurança antes de avançar sem sentinelas.'
+            },
+            'R': {
+                name: 'Centelha Final',
+                key: 'R',
+                cooldown: '60s / 50s / 40s',
+                cost: '100 de Mana',
+                icon: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/spell/LuxR.png',
+                desc: 'Após canalizar por 0.5s, Lux dispara um feixe gigante de luz que causa dano massivo em linha reta a todos os inimigos. Além disso, ativa e renova a marca da Passiva Iluminação.',
+                details: 'Dano Mágico: 300 / 400 / 500 (+120% AP). Alcance: 3340 (Alcance semi-global).',
+                tip: 'Como o R consome e reaplica a Passiva, acertar Q -> E -> R detonará o dano da passiva instantaneamente sem precisar se expor em alcance de ataque básico!'
+            }
+        };
+
+        // --- DADOS DE ROTAS & MATCHUPS ---
+        const laneData = {
+            mid: {
+                title: "Mid Lane (Mago de Burst & Controle)",
+                desc: "Na Mid Lane, Lux atua como uma ameaça de artilharia e burst. Seu foco principal é farmar com segurança, assediar o oponente com o E e punir erros de posicionamento com o combo completo Q + E + R.",
+                skillMax: ["E (Max primeiro para Waveclear)", "Q (Max segundo para Redução de Cooldown)", "W (Max por último)"],
+                favorable: [
+                    { name: "Veigar", reason: "Você tem alcance muito superior e o impede de farmar." },
+                    { name: "Malzahar", reason: "Seu E limpa os bisouros e quebra o escudo de longe." },
+                    { name: "Brand", reason: "Você o ataca fora da distância de conjuração dele." }
+                ],
+                counters: [
+                    { name: "Zed", reason: "A mobilidade com sombras e a ult evitam seu Q facilmente." },
+                    { name: "Fizz", reason: "Sua habilidade E (Tridente) desvia do seu combo inteiro." },
+                    { name: "Yasuo", reason: "A Parede de Vento bloqueia seu Q, W e E totalmente." }
+                ]
+            },
+            sup: {
+                title: "Suporte (Poke, Visão & Proteção)",
+                desc: "Como Suporte, Lux oferece pressão de rota constante com o alcance do E e a proteção de escudo com o W em lutas de equipe. Ela se torna um segundo Mago de alto dano no late game.",
+                skillMax: ["E ou W (E para Poke / W para Proteção)", "Q (Enraizamento e utilidade)", "W ou E"],
+                favorable: [
+                    { name: "Jinx", reason: "Sinergia perfeita de enraizamento Q com as armadilhas dela." },
+                    { name: "Caitlyn", reason: "Longo alcance duplo para dominar a rota e aplicar poke." },
+                    { name: "Lulu", reason: "Você ganha na distância sem sofrer retaliação." }
+                ],
+                counters: [
+                    { name: "Pyke", reason: "Hooks rápidos e alta mobilidade executam a Lux frágil." },
+                    { name: "Leona", reason: "Engajamento pesado travando Lux sem escapatória." },
+                    { name: "Samira", reason: "O W da Samira destrói suas habilidades principais." }
+                ]
+            }
+        };
+
+        // --- DADOS DO BANCO DE SKINS ---
+        const skinsData = [
+            {
+                id: 0,
+                title: "Lux Clássica",
+                rarity: "Padrão",
+                rp: "Grátis",
+                year: "2010",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_0.jpg",
+                desc: "A jovem magistrada demaciana vestida com sua armadura de aço de petricita e tecido real."
+            },
+            {
+                id: 7,
+                title: "Lux Elementalista",
+                rarity: "Ultimate",
+                rp: "3250 RP",
+                year: "2016",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_7.jpg",
+                desc: "Com 10 formas elementais distintas em uma única partida (Fogo, Água, Ar, Natureza, Magma, Tempestade, Místico, Gelo, Escuridão e Luz), Lux Elementalista domina os elementos para salvar o mundo."
+            },
+            {
+                id: 14,
+                title: "Lux Cósmica",
+                rarity: "Lendária",
+                rp: "1820 RP",
+                year: "2020",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_14.jpg",
+                desc: "Tetrada da Corte Cósmica encarregada de tecer constelações e trazer luz aos cantos mais escuros do universo."
+            },
+            {
+                id: 15,
+                title: "Lux de Sombra Cósmica",
+                rarity: "Lendária",
+                rp: "1820 RP",
+                year: "2020",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_15.jpg",
+                desc: "Sumbucando à corrupção da Estrela Negra, Lux abraça o caos gravitacional para remodelar o cosmos."
+            },
+            {
+                id: 12,
+                title: "Lux Academia de Batalha",
+                rarity: "Lendária",
+                rp: "1820 RP",
+                year: "2019",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_12.jpg",
+                desc: "Estudante prodígio do primeiro ano da Academia Durandal e líder do Clube de Sorcery."
+            },
+            {
+                id: 5,
+                title: "Lux Guardiã Estelar",
+                rarity: "Épica",
+                rp: "1350 RP",
+                year: "2015",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_5.jpg",
+                desc: "Capitã de sua equipe de Guardiãs Estelares, Lux brilha com a luz da Primeira Estrela para proteger o universo."
+            },
+            {
+                id: 29,
+                title: "Lux Porcelana",
+                rarity: "Épica",
+                rp: "1350 RP",
+                year: "2022",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_29.jpg",
+                desc: "Empunhando a relíquia do Coelho de Porcelana, Lux canaliza feitiços ancestrais de cerâmica radiante."
+            },
+            {
+                id: 19,
+                title: "Lux Embalos no Espaço",
+                rarity: "Épica",
+                rp: "1350 RP",
+                year: "2021",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_19.jpg",
+                desc: "Lutando contra as forças do tédio com o ritmo imbatível do Disco e da luz psicodélica."
+            },
+            {
+                id: 40,
+                title: "Lux Corte das Fadas",
+                rarity: "Épica",
+                rp: "1350 RP",
+                year: "2023",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_40.jpg",
+                desc: "Uma nobre e graciosa fada da luz na misteriosa Corte das Fadas."
+            },
+            {
+                id: 13,
+                title: "Lux Academia de Batalha Prestígio",
+                rarity: "Prestígio",
+                rp: "125 Essência Mítica",
+                year: "2019",
+                img: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lux_13.jpg",
+                desc: "Vestindo o uniforme cerimonial dourado de alta graduação da Academia Durandal."
+            }
+        ];
+
+        // --- PRESETS DE RUNAS ---
+        const runePresets = {
+            'mid-burst': {
+                title: "Mid Lane: Burst de Cometa Arcano",
+                primaryTree: "Feitiçaria (Primária)",
+                secondaryTree: "Dominação (Secundária)",
+                keystone: { name: "Cometa Arcano", desc: "Causa dano adaptativo adicional ao atingir campeões com habilidades." },
+                primaryRunes: ["Faixa de Fluxo de Mana", "Transcendência", "Chamuscar"],
+                secondaryRunes: ["Golpe Baixo / Sentinela Zumbi", "Caça Suprema (CD da Ult)"],
+                shards: ["+9 Poder de Habilidade", "+9 Poder de Habilidade", "+6 Armadura / MR"]
+            },
+            'mid-firststrike': {
+                title: "Mid Lane: Scaling & Ouro Acelerado",
+                primaryTree: "Inspiração (Primária)",
+                secondaryTree: "Feitiçaria (Secundária)",
+                keystone: { name: "Primeiro Impacto", desc: "Ataques e habilidades dão 9% de dano bônus e concedem ouro extra." },
+                primaryRunes: ["Calçados Mágicos", "Pulverizador de Tropa", "Perspicácia Cósmica"],
+                secondaryRunes: ["Faixa de Fluxo de Mana", "Transcendência"],
+                shards: ["+9 Poder de Habilidade", "+9 Poder de Habilidade", "+6 Armadura"]
+            },
+            'sup-aery': {
+                title: "Suporte: Poke Intermitente & Proteção",
+                primaryTree: "Feitiçaria (Primária)",
+                secondaryTree: "Inspiração (Secundária)",
+                keystone: { name: "Invocar Aery", desc: "Seus ataques e habilidades enviam Aery para causar dano ou conceder escudo a aliados." },
+                primaryRunes: ["Faixa de Fluxo de Mana", "Transcendência", "Tempestade Crescente"],
+                secondaryRunes: ["Entrega de Biscoitos", "Perspicácia Cósmica"],
+                shards: ["+8 Aceleração de Habilidade", "+9 Poder de Habilidade", "+15-140 Vida"]
+            }
+        };
+
+        // --- INICIALIZAÇÃO E LÓGICA EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar Lucide Icons
+            lucide.createIcons();
+
+            // Setup do Menu Mobile
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Setup Toggle Lore
+            const toggleLoreBtn = document.getElementById('toggle-lore-btn');
+            const fullLore = document.getElementById('full-lore');
+            const loreArrow = document.getElementById('lore-arrow');
+            if (toggleLoreBtn) {
+                toggleLoreBtn.addEventListener('click', () => {
+                    const isHidden = fullLore.classList.contains('hidden');
+                    if (isHidden) {
+                        fullLore.classList.remove('hidden');
+                        toggleLoreBtn.querySelector('span').innerText = 'Recolher História';
+                        loreArrow.classList.add('rotate-180');
+                    } else {
+                        fullLore.classList.add('hidden');
+                        toggleLoreBtn.querySelector('span').innerText = 'Ler História Completa';
+                        loreArrow.classList.remove('rotate-180');
+                    }
+                });
+            }
+
+            // Setup Habilidades Tabs
+            const skillTabs = document.querySelectorAll('.skill-tab');
+            skillTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    skillTabs.forEach(t => {
+                        t.classList.remove('active', 'border-demacia-gold', 'text-demacia-gold');
+                        t.classList.add('border-demacia-gold/30', 'text-slate-300');
+                    });
+                    tab.classList.add('active', 'border-demacia-gold', 'text-demacia-gold');
+                    tab.classList.remove('border-demacia-gold/30', 'text-slate-300');
+
+                    const skillKey = tab.getAttribute('data-skill');
+                    renderAbility(skillKey);
+                });
+            });
+            // Renderiza P por padrão
+            renderAbility('P');
+
+            // Setup Lane Switcher
+            const btnMid = document.getElementById('btn-lane-mid');
+            const btnSup = document.getElementById('btn-lane-sup');
+            if (btnMid && btnSup) {
+                btnMid.addEventListener('click', () => {
+                    btnMid.className = "px-6 py-2 rounded-full font-cinzel font-bold text-sm uppercase transition-all bg-demacia-gold text-demacia-blueDark shadow-gold-glow";
+                    btnSup.className = "px-6 py-2 rounded-full font-cinzel font-bold text-sm uppercase transition-all text-slate-300 hover:text-demacia-gold";
+                    renderLane('mid');
+                });
+                btnSup.addEventListener('click', () => {
+                    btnSup.className = "px-6 py-2 rounded-full font-cinzel font-bold text-sm uppercase transition-all bg-demacia-gold text-demacia-blueDark shadow-gold-glow";
+                    btnMid.className = "px-6 py-2 rounded-full font-cinzel font-bold text-sm uppercase transition-all text-slate-300 hover:text-demacia-gold";
+                    renderLane('sup');
+                });
+            }
+            renderLane('mid');
+
+            // Setup Rune Presets
+            const runeBtns = document.querySelectorAll('.rune-preset-btn');
+            runeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    runeBtns.forEach(b => {
+                        b.classList.remove('active', 'border-demacia-gold', 'text-demacia-gold');
+                        b.classList.add('border-demacia-gold/30', 'text-slate-400');
+                    });
+                    btn.classList.add('active', 'border-demacia-gold', 'text-demacia-gold');
+                    btn.classList.remove('border-demacia-gold/30', 'text-slate-400');
+
+                    const presetKey = btn.getAttribute('data-rune-preset');
+                    renderRunes(presetKey);
+                });
+            });
+            renderRunes('mid-burst');
+
+            // Setup Skins Grid
+            renderSkins('all', '');
+
+            const skinSearch = document.getElementById('skin-search');
+            if (skinSearch) {
+                skinSearch.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    const activeRarityBtn = document.querySelector('.skin-filter-btn.active');
+                    const rarity = activeRarityBtn ? activeRarityBtn.getAttribute('data-rarity') : 'all';
+                    renderSkins(rarity, query);
+                });
+            }
+
+            const rarityBtns = document.querySelectorAll('.skin-filter-btn');
+            rarityBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    rarityBtns.forEach(b => {
+                        b.classList.remove('active', 'border-demacia-gold', 'text-demacia-gold');
+                        b.classList.add('border-demacia-gold/30', 'text-slate-400');
+                    });
+                    btn.classList.add('active', 'border-demacia-gold', 'text-demacia-gold');
+                    btn.classList.remove('border-demacia-gold/30', 'text-slate-400');
+
+                    const rarity = btn.getAttribute('data-rarity');
+                    const query = skinSearch ? skinSearch.value.toLowerCase() : '';
+                    renderSkins(rarity, query);
+                });
+            });
+
+            // Modal Skin Setup
+            const skinModal = document.getElementById('skin-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const closeModalBottomBtn = document.getElementById('close-modal-bottom-btn');
+            if (skinModal && closeModalBtn && closeModalBottomBtn) {
+                const closeModal = () => skinModal.classList.add('hidden');
+                closeModalBtn.addEventListener('click', closeModal);
+                closeModalBottomBtn.addEventListener('click', closeModal);
+            }
+
+            // Setup Calculadora de Dano
+            setupCalculator();
+        });
+
+        // --- FUNÇÕES DE RENDERIZAÇÃO ---
+
+        function renderAbility(key) {
+            const data = abilitiesData[key];
+            const container = document.getElementById('ability-display');
+            if (!container || !data) return;
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-8 space-y-4">
+                        <div class="flex items-center gap-4">
+                            <img src="${data.icon}" alt="${data.name}" class="w-16 h-16 rounded-xl border-2 border-demacia-gold shadow-gold-glow">
+                            <div>
+                                <span class="px-2.5 py-0.5 rounded bg-demacia-gold/20 text-demacia-gold font-cinzel text-xs font-bold border border-demacia-gold/30">
+                                    TECLA ${data.key}
+                                </span>
+                                <h3 class="font-cinzel text-2xl font-bold gold-gradient-text mt-1">${data.name}</h3>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-4 text-xs font-cinzel text-slate-300 py-2 border-y border-demacia-gold/20">
+                            <div><span class="text-slate-500">TEMPO DE RECARGA:</span> <strong class="text-demacia-gold">${data.cooldown}</strong></div>
+                            <div><span class="text-slate-500">CUSTO DE MANA:</span> <strong class="text-demacia-gold">${data.cost}</strong></div>
+                        </div>
+
+                        <p class="text-slate-200 text-sm leading-relaxed">${data.desc}</p>
+                        
+                        <div class="p-3 bg-demacia-blueDark/80 rounded-lg border border-demacia-gold/20 text-xs text-demacia-goldLight">
+                            <strong>Valores & Escalonamento:</strong> ${data.details}
+                        </div>
+
+                        <div class="p-3 bg-demacia-gold/10 rounded-lg border border-demacia-gold/40 text-xs text-slate-300 flex items-start gap-2">
+                            <i data-lucide="lightbulb" class="w-4 h-4 text-demacia-gold flex-shrink-0 mt-0.5"></i>
+                            <span><strong>Dica Profissional:</strong> ${data.tip}</span>
+                        </div>
+                    </div>
+
+                    <!-- Representação Estilizada da Habilidade -->
+                    <div class="lg:col-span-4 glass-panel p-6 rounded-xl border border-demacia-gold/30 text-center flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden">
+                        <div class="w-20 h-20 rounded-full border-2 border-demacia-gold flex items-center justify-center bg-demacia-blueDark/90 shadow-light-beam mb-3">
+                            <i data-lucide="sparkles" class="w-10 h-10 text-demacia-gold"></i>
+                        </div>
+                        <span class="font-cinzel font-bold text-xs text-demacia-goldLight uppercase">Poder Demaciano</span>
+                        <span class="text-[10px] text-slate-400 mt-1">Luz pura concentrada para aniquilar forças das sombras.</span>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderLane(laneKey) {
+            const data = laneData[laneKey];
+            const container = document.getElementById('lane-content');
+            if (!container || !data) return;
+
+            container.innerHTML = `
+                <!-- Visão Geral -->
+                <div class="lg:col-span-6 glass-panel p-6 rounded-2xl border border-demacia-gold/30 space-y-4">
+                    <h3 class="font-cinzel text-xl font-bold text-demacia-goldLight flex items-center gap-2">
+                        <i data-lucide="compass" class="w-5 h-5 text-demacia-gold"></i>
+                        ${data.title}
+                    </h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">${data.desc}</p>
+
+                    <div class="pt-4 border-t border-demacia-gold/20">
+                        <h4 class="font-cinzel text-xs font-bold text-demacia-gold uppercase mb-3">Ordem Prioritária de Evolução de Habilidades (Skill Max Order):</h4>
+                        <div class="space-y-2">
+                            ${data.skillMax.map(s => `
+                                <div class="flex items-center gap-2 text-xs text-slate-200 bg-demacia-blueDark/60 p-2 rounded border border-demacia-gold/20">
+                                    <i data-lucide="check-circle" class="w-4 h-4 text-demacia-gold"></i>
+                                    <span>${s}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Matchups -->
+                <div class="lg:col-span-6 glass-panel p-6 rounded-2xl border border-demacia-gold/30 space-y-6">
+                    <!-- Favoráveis -->
+                    <div>
+                        <h4 class="font-cinzel text-sm font-bold text-green-400 uppercase mb-3 flex items-center gap-2">
+                            <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                            Matchups Favoráveis (Boa Vantagem)
+                        </h4>
+                        <div class="space-y-2">
+                            ${data.favorable.map(m => `
+                                <div class="p-2.5 bg-demacia-blueDark/60 rounded-lg border border-green-500/20 text-xs">
+                                    <strong class="text-green-300 block font-cinzel">${m.name}</strong>
+                                    <span class="text-slate-300">${m.reason}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Counters -->
+                    <div>
+                        <h4 class="font-cinzel text-sm font-bold text-red-400 uppercase mb-3 flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                            Counters / Confrontos Difíceis
+                        </h4>
+                        <div class="space-y-2">
+                            ${data.counters.map(c => `
+                                <div class="p-2.5 bg-demacia-blueDark/60 rounded-lg border border-red-500/20 text-xs">
+                                    <strong class="text-red-300 block font-cinzel">${c.name}</strong>
+                                    <span class="text-slate-300">${c.reason}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderRunes(presetKey) {
+            const data = runePresets[presetKey];
+            const container = document.getElementById('rune-tree-display');
+            if (!container || !data) return;
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Árvore Primária -->
+                    <div class="space-y-4">
+                        <span class="text-xs font-cinzel text-demacia-gold uppercase tracking-widest block font-bold">${data.primaryTree}</span>
+                        
+                        <!-- Runa Chave -->
+                        <div class="p-4 bg-demacia-blueDark/80 rounded-xl border-2 border-demacia-gold shadow-gold-glow flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full border border-demacia-gold bg-demacia-gold/20 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="zap" class="w-6 h-6 text-demacia-gold"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-cinzel font-bold text-demacia-goldLight text-base">${data.keystone.name}</h4>
+                                <p class="text-xs text-slate-300">${data.keystone.desc}</p>
+                            </div>
+                        </div>
+
+                        <!-- Runas Primárias Secundárias -->
+                        <div class="space-y-2">
+                            ${data.primaryRunes.map(r => `
+                                <div class="p-3 bg-demacia-blueDark/50 rounded-lg border border-demacia-gold/20 text-xs text-slate-200 font-cinzel flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-demacia-gold"></span>
+                                    <span>${r}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Árvore Secundária e Status -->
+                    <div class="space-y-4">
+                        <span class="text-xs font-cinzel text-demacia-gold uppercase tracking-widest block font-bold">${data.secondaryTree}</span>
+
+                        <div class="space-y-2">
+                            ${data.secondaryRunes.map(r => `
+                                <div class="p-3 bg-demacia-blueDark/50 rounded-lg border border-demacia-gold/20 text-xs text-slate-200 font-cinzel flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-demacia-accent"></span>
+                                    <span>${r}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <span class="text-xs font-cinzel text-slate-400 uppercase tracking-widest block font-bold pt-2">Fragmentos de Status (Shards):</span>
+                        <div class="grid grid-cols-1 gap-2">
+                            ${data.shards.map(s => `
+                                <div class="p-2.5 bg-demacia-blueDark/30 rounded border border-demacia-gold/10 text-xs text-demacia-goldLight flex items-center gap-2">
+                                    <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-demacia-gold"></i>
+                                    <span>${s}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderSkins(rarityFilter, searchQuery) {
+            const container = document.getElementById('skins-grid');
+            if (!container) return;
+
+            const filtered = skinsData.filter(skin => {
+                const matchRarity = (rarityFilter === 'all') || (skin.rarity.toLowerCase() === rarityFilter.toLowerCase());
+                const matchQuery = skin.title.toLowerCase().includes(searchQuery);
+                return matchRarity && matchQuery;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-400 font-cinzel">
+                        Nenhuma skin encontrada com os filtros selecionados.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(skin => `
+                <div class="glass-panel rounded-xl overflow-hidden border border-demacia-gold/20 glass-panel-hover group cursor-pointer" onclick="openSkinModal(${skin.id})">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="${skin.img}" alt="${skin.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-demacia-blueDark via-transparent to-transparent"></div>
+                        <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-cinzel font-bold uppercase bg-demacia-blueDark/80 text-demacia-gold border border-demacia-gold/40">
+                            ${skin.rarity}
+                        </span>
+                    </div>
+                    <div class="p-4 text-center">
+                        <h4 class="font-cinzel font-bold text-slate-100 group-hover:text-demacia-gold transition-colors">${skin.title}</h4>
+                        <span class="text-xs text-slate-400 block mt-1">${skin.rp} • ${skin.year}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openSkinModal(skinId) {
+            const skin = skinsData.find(s => s.id === skinId);
+            if (!skin) return;
+
+            document.getElementById('modal-skin-img').src = skin.img;
+            document.getElementById('modal-skin-title').innerText = skin.title;
+            document.getElementById('modal-skin-rarity').innerText = skin.rarity;
+            document.getElementById('modal-skin-rp').innerText = skin.rp;
+            document.getElementById('modal-skin-year').innerText = skin.year;
+            document.getElementById('modal-skin-desc').innerText = skin.desc;
+
+            const modal = document.getElementById('skin-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        // --- SIMULADOR DE COMBO DE DANO ---
+        function setupCalculator() {
+            const levelInput = document.getElementById('calc-level');
+            const apInput = document.getElementById('calc-ap');
+            const mrInput = document.getElementById('calc-mr');
+            const flatPenInput = document.getElementById('calc-flat-pen');
+            const percentPenInput = document.getElementById('calc-percent-pen');
+
+            const chkQ = document.getElementById('chk-q');
+            const chkE = document.getElementById('chk-e');
+            const chkR = document.getElementById('chk-r');
+            const chkPassive = document.getElementById('chk-passive');
+
+            function updateCalculator() {
+                const level = parseInt(levelInput.value);
+                const ap = parseInt(apInput.value);
+                const targetMR = parseInt(mrInput.value);
+                const flatPen = parseInt(flatPenInput.value) || 0;
+                const percentPen = (parseInt(percentPenInput.value) || 0) / 100;
+
+                document.getElementById('calc-level-val').innerText = `Nível ${level}`;
+                document.getElementById('calc-ap-val').innerText = `${ap} AP`;
+                document.getElementById('calc-mr-val').innerText = `${targetMR} MR`;
+
+                // Nível das Habilidades baseado no nível do campeão
+                const qRank = Math.min(5, Math.max(1, Math.floor(level / 3)));
+                const eRank = Math.min(5, Math.max(1, Math.ceil(level / 2.5)));
+                const rRank = level >= 16 ? 3 : (level >= 11 ? 2 : (level >= 6 ? 1 : 0));
+
+                // Danos Base
+                const qBase = [0, 80, 125, 170, 215, 260][qRank];
+                const eBase = [0, 70, 120, 170, 220, 270][eRank];
+                const rBase = rRank > 0 ? [0, 300, 400, 500][rRank] : 0;
+                
+                // Dano da Passiva (20 a 190 com base no nível + 25% AP)
+                const passiveBase = 20 + ((190 - 20) / 17) * (level - 1);
+
+                // Cálculo Dano Bruto
+                let qDamage = chkQ.checked ? (qBase + ap * 0.75) : 0;
+                let eDamage = chkE.checked ? (eBase + ap * 0.80) : 0;
+                let rDamage = (chkR.checked && rRank > 0) ? (rBase + ap * 1.20) : 0;
+                let passiveDamage = chkPassive.checked ? (passiveBase + ap * 0.25) * 2 : 0; // Considera 2 estouros da passiva no combo
+
+                const totalRaw = Math.round(qDamage + eDamage + rDamage + passiveDamage);
+
+                // Cálculo de Redução por Resistência Mágica Efetuada
+                // MR Efetiva = Math.max(0, (MR * (1 - %Pen)) - FlatPen)
+                const effectiveMR = Math.max(0, (targetMR * (1 - percentPen)) - flatPen);
+                const damageMultiplier = 100 / (100 + effectiveMR);
+                const totalEffective = Math.round(totalRaw * damageMultiplier);
+
+                // Atualizar DOM
+                document.getElementById('q-damage-val').innerText = Math.round(qDamage * damageMultiplier) + ` (${Math.round(qDamage)} Bruto)`;
+                document.getElementById('e-damage-val').innerText = Math.round(eDamage * damageMultiplier) + ` (${Math.round(eDamage)} Bruto)`;
+                document.getElementById('r-damage-val').innerText = Math.round(rDamage * damageMultiplier) + ` (${Math.round(rDamage)} Bruto)`;
+                document.getElementById('passive-damage-val').innerText = Math.round(passiveDamage * damageMultiplier) + ` (${Math.round(passiveDamage)} Bruto)`;
+
+                document.getElementById('total-raw-damage').innerText = totalRaw;
+                document.getElementById('total-effective-damage').innerText = totalEffective;
+
+                // Veredito de eliminação
+                const verdict = document.getElementById('combo-verdict');
+                if (totalEffective >= 1800) {
+                    verdict.innerHTML = `<span class="text-red-400 font-black">⚡ ELIMINAÇÃO INSTANTÂNEA! (Overkill)</span>`;
+                } else if (totalEffective >= 1200) {
+                    verdict.innerHTML = `<span class="text-demacia-gold font-bold">✨ Abate Garantido em Campeões Frágeis (Adc/Mago)</span>`;
+                } else {
+                    verdict.innerHTML = `<span class="text-slate-400">🛡️ Alvo Sobrevive (Necessário Dano Adicional dos Aliados)</span>`;
+                }
+            }
+
+            // Event Listeners
+            [levelInput, apInput, mrInput, flatPenInput, percentPenInput, chkQ, chkE, chkR, chkPassive].forEach(elem => {
+                if (elem) elem.addEventListener('input', updateCalculator);
+            });
+
+            updateCalculator();
+        }
+    </script>
+</body>
+</html>
